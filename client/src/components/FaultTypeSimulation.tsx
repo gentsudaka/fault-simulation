@@ -1,7 +1,13 @@
 /*
- * DESIGN: Minimal Monochrome Modernism
- * Individual fault type visualization with isometric 3D blocks
+ * DESIGN: Seismically Accurate Curved Plates
+ * Abstract minimal visualization with curved fault surfaces
  * Dark lines on light brown/beige background
+ * 
+ * Seismic accuracy notes:
+ * - Fault surfaces are rarely planar; they curve and undulate
+ * - Strike-slip: Transform boundary with lateral shear
+ * - Normal: Extensional regime, listric (curved) fault geometry
+ * - Reverse/Thrust: Compressional regime, curved thrust surface
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -21,23 +27,26 @@ interface FaultTypeSimulationProps {
 const FAULT_INFO = {
   'strike-slip': {
     title: 'Strike-Slip',
-    description: 'Horizontal movement along the fault plane',
-    movement: 'Blocks slide past each other horizontally',
+    subtitle: 'Transform Boundary',
+    description: 'Lateral shear along curved fault plane',
+    movement: 'Plates slide horizontally past each other',
   },
   'normal': {
     title: 'Normal',
-    description: 'Hanging wall moves down relative to footwall',
-    movement: 'Extension causes blocks to pull apart',
+    subtitle: 'Extensional Regime',
+    description: 'Hanging wall drops along listric surface',
+    movement: 'Crustal extension pulls plates apart',
   },
   'reverse': {
     title: 'Reverse',
-    description: 'Hanging wall moves up relative to footwall',
-    movement: 'Compression pushes blocks together',
+    subtitle: 'Compressional Regime',
+    description: 'Hanging wall rises along thrust surface',
+    movement: 'Crustal compression pushes plates together',
   },
 };
 
-const MAX_DISPLACEMENT = 40;
-const ANIMATION_DURATION = 3000;
+const MAX_DISPLACEMENT = 50;
+const ANIMATION_DURATION = 3500;
 
 export default function FaultTypeSimulation({ 
   type, 
@@ -62,7 +71,7 @@ export default function FaultTypeSimulation({
     const elapsed = timestamp - startTimeRef.current;
     const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
     
-    // Ease out cubic
+    // Ease out cubic for natural deceleration
     const eased = 1 - Math.pow(1 - progress, 3);
     const newDisplacement = startDisplacementRef.current + (MAX_DISPLACEMENT - startDisplacementRef.current) * eased;
     
@@ -108,136 +117,169 @@ export default function FaultTypeSimulation({
     setDisplacement(value[0]);
   };
 
-  // Calculate block positions based on fault type
-  const getBlockTransforms = () => {
-    const d = displacement;
-    switch (type) {
-      case 'strike-slip':
-        return {
-          left: { x: -d * 0.8, y: 0 },
-          right: { x: d * 0.8, y: 0 },
-        };
-      case 'normal':
-        return {
-          left: { x: -d * 0.3, y: d * 0.6 },
-          right: { x: d * 0.3, y: -d * 0.2 },
-        };
-      case 'reverse':
-        return {
-          left: { x: d * 0.3, y: -d * 0.6 },
-          right: { x: -d * 0.3, y: d * 0.2 },
-        };
-    }
-  };
-
-  const transforms = getBlockTransforms();
-
   // SVG dimensions
   const svgWidth = 320;
-  const svgHeight = 240;
+  const svgHeight = 260;
   const centerX = svgWidth / 2;
   const centerY = svgHeight / 2;
-  
-  // Block dimensions (isometric)
-  const blockWidth = 80;
-  const blockHeight = 60;
-  const blockDepth = 50;
-  
-  // Isometric projection helpers
-  const isoX = (x: number, z: number) => centerX + (x - z) * 0.866;
-  const isoY = (x: number, y: number, z: number) => centerY + (x + z) * 0.5 - y;
 
-  // Create isometric block paths
-  const createBlockPath = (offsetX: number, offsetY: number, offsetZ: number) => {
-    const w = blockWidth;
-    const h = blockHeight;
-    const d = blockDepth;
-    
-    // 8 corners of the block
-    const corners = {
-      // Front face
-      ftl: { x: isoX(offsetX, offsetZ), y: isoY(offsetX, h + offsetY, offsetZ) },
-      ftr: { x: isoX(offsetX + w, offsetZ), y: isoY(offsetX + w, h + offsetY, offsetZ) },
-      fbl: { x: isoX(offsetX, offsetZ), y: isoY(offsetX, offsetY, offsetZ) },
-      fbr: { x: isoX(offsetX + w, offsetZ), y: isoY(offsetX + w, offsetY, offsetZ) },
-      // Back face
-      btl: { x: isoX(offsetX, offsetZ + d), y: isoY(offsetX, h + offsetY, offsetZ + d) },
-      btr: { x: isoX(offsetX + w, offsetZ + d), y: isoY(offsetX + w, h + offsetY, offsetZ + d) },
-      bbl: { x: isoX(offsetX, offsetZ + d), y: isoY(offsetX, offsetY, offsetZ + d) },
-      bbr: { x: isoX(offsetX + w, offsetZ + d), y: isoY(offsetX + w, offsetY, offsetZ + d) },
-    };
-    
-    return {
-      top: `M ${corners.ftl.x} ${corners.ftl.y} L ${corners.ftr.x} ${corners.ftr.y} L ${corners.btr.x} ${corners.btr.y} L ${corners.btl.x} ${corners.btl.y} Z`,
-      front: `M ${corners.ftl.x} ${corners.ftl.y} L ${corners.ftr.x} ${corners.ftr.y} L ${corners.fbr.x} ${corners.fbr.y} L ${corners.fbl.x} ${corners.fbl.y} Z`,
-      right: `M ${corners.ftr.x} ${corners.ftr.y} L ${corners.btr.x} ${corners.btr.y} L ${corners.bbr.x} ${corners.bbr.y} L ${corners.fbr.x} ${corners.fbr.y} Z`,
-      left: `M ${corners.ftl.x} ${corners.ftl.y} L ${corners.btl.x} ${corners.btl.y} L ${corners.bbl.x} ${corners.bbl.y} L ${corners.fbl.x} ${corners.fbl.y} Z`,
-    };
+  // Normalized displacement (0-1)
+  const d = displacement / MAX_DISPLACEMENT;
+
+  // Generate curved plate paths based on fault type
+  const generatePlatePaths = () => {
+    switch (type) {
+      case 'strike-slip': {
+        // Transform fault - curved vertical fault plane with horizontal offset
+        const offset = d * 35;
+        
+        // Left plate - curved edge facing right
+        const leftPlate = `
+          M 30 ${centerY - 60}
+          L 30 ${centerY + 80}
+          L ${centerX - 8 - offset} ${centerY + 80}
+          Q ${centerX - 5 - offset} ${centerY + 40}, ${centerX - 10 - offset} ${centerY}
+          Q ${centerX - 5 - offset} ${centerY - 40}, ${centerX - 8 - offset} ${centerY - 60}
+          Z
+        `;
+        
+        // Right plate - curved edge facing left (complementary curve)
+        const rightPlate = `
+          M ${svgWidth - 30} ${centerY - 60}
+          L ${svgWidth - 30} ${centerY + 80}
+          L ${centerX + 8 + offset} ${centerY + 80}
+          Q ${centerX + 5 + offset} ${centerY + 40}, ${centerX + 10 + offset} ${centerY}
+          Q ${centerX + 5 + offset} ${centerY - 40}, ${centerX + 8 + offset} ${centerY - 60}
+          Z
+        `;
+        
+        // Fault trace - curved line between plates
+        const faultLine = `
+          M ${centerX} ${centerY - 70}
+          Q ${centerX - 3} ${centerY - 35}, ${centerX} ${centerY}
+          Q ${centerX + 3} ${centerY + 35}, ${centerX} ${centerY + 90}
+        `;
+        
+        return { leftPlate, rightPlate, faultLine, leftTransform: `translate(0, ${-offset * 0.8})`, rightTransform: `translate(0, ${offset * 0.8})` };
+      }
+      
+      case 'normal': {
+        // Listric normal fault - curved concave-up fault surface
+        // Hanging wall (right) drops down and rotates slightly
+        const dropY = d * 40;
+        const pullX = d * 15;
+        const rotation = d * 5;
+        
+        // Footwall (left plate) - stays relatively fixed
+        const leftPlate = `
+          M 25 ${centerY - 50}
+          L 25 ${centerY + 90}
+          L ${centerX + 20} ${centerY + 90}
+          Q ${centerX - 10} ${centerY + 30}, ${centerX - 25} ${centerY - 20}
+          L ${centerX - 35} ${centerY - 50}
+          Z
+        `;
+        
+        // Hanging wall (right plate) - drops along curved surface
+        const rightPlate = `
+          M ${svgWidth - 25} ${centerY - 50}
+          L ${svgWidth - 25} ${centerY + 90}
+          L ${centerX + 25} ${centerY + 90}
+          Q ${centerX - 5} ${centerY + 30}, ${centerX - 20} ${centerY - 20}
+          L ${centerX - 30} ${centerY - 50}
+          Z
+        `;
+        
+        // Listric fault surface - concave up curve
+        const faultLine = `
+          M ${centerX - 30} ${centerY - 60}
+          Q ${centerX - 40} ${centerY}, ${centerX - 20} ${centerY + 40}
+          Q ${centerX + 10} ${centerY + 70}, ${centerX + 30} ${centerY + 95}
+        `;
+        
+        return { 
+          leftPlate, 
+          rightPlate, 
+          faultLine, 
+          leftTransform: `translate(${-pullX * 0.3}, 0)`,
+          rightTransform: `translate(${pullX}, ${dropY}) rotate(${rotation} ${centerX + 50} ${centerY})`
+        };
+      }
+      
+      case 'reverse': {
+        // Thrust fault - curved convex-up fault surface
+        // Hanging wall (left) rises up and over
+        const riseY = d * 35;
+        const pushX = d * 20;
+        const rotation = d * -4;
+        
+        // Hanging wall (left plate) - rises along thrust
+        const leftPlate = `
+          M 25 ${centerY - 40}
+          L 25 ${centerY + 90}
+          L ${centerX + 10} ${centerY + 90}
+          Q ${centerX + 20} ${centerY + 50}, ${centerX + 30} ${centerY}
+          Q ${centerX + 25} ${centerY - 30}, ${centerX + 15} ${centerY - 40}
+          Z
+        `;
+        
+        // Footwall (right plate) - relatively fixed
+        const rightPlate = `
+          M ${svgWidth - 25} ${centerY - 40}
+          L ${svgWidth - 25} ${centerY + 90}
+          L ${centerX + 15} ${centerY + 90}
+          Q ${centerX + 25} ${centerY + 50}, ${centerX + 35} ${centerY}
+          Q ${centerX + 30} ${centerY - 30}, ${centerX + 20} ${centerY - 40}
+          Z
+        `;
+        
+        // Thrust fault surface - convex curve
+        const faultLine = `
+          M ${centerX + 10} ${centerY - 50}
+          Q ${centerX + 40} ${centerY - 10}, ${centerX + 35} ${centerY + 30}
+          Q ${centerX + 25} ${centerY + 60}, ${centerX + 15} ${centerY + 95}
+        `;
+        
+        return { 
+          leftPlate, 
+          rightPlate, 
+          faultLine, 
+          leftTransform: `translate(${pushX}, ${-riseY}) rotate(${rotation} ${centerX - 50} ${centerY + 50})`,
+          rightTransform: `translate(${-pushX * 0.2}, 0)`
+        };
+      }
+    }
   };
 
-  // Left block (offset to the left)
-  const leftBlock = createBlockPath(
-    -blockWidth - 5 + transforms.left.x, 
-    transforms.left.y, 
-    -blockDepth / 2
-  );
-  
-  // Right block (offset to the right)
-  const rightBlock = createBlockPath(
-    5 + transforms.right.x, 
-    transforms.right.y, 
-    -blockDepth / 2
-  );
+  const paths = generatePlatePaths();
 
-  // Arrow paths for movement direction
-  const getArrowPaths = () => {
-    const arrowLength = 25;
-    const arrowHead = 8;
+  // Stress indicators (small arrows showing force direction)
+  const getStressArrows = () => {
+    const arrowSize = 20;
+    const opacity = Math.min(d * 2, 0.7);
     
     switch (type) {
       case 'strike-slip':
         return [
-          // Left block arrow (pointing left)
-          { 
-            line: `M ${centerX - 60} ${centerY + 40} L ${centerX - 60 - arrowLength} ${centerY + 40}`,
-            head: `M ${centerX - 60 - arrowLength + arrowHead} ${centerY + 40 - 5} L ${centerX - 60 - arrowLength} ${centerY + 40} L ${centerX - 60 - arrowLength + arrowHead} ${centerY + 40 + 5}`,
-          },
-          // Right block arrow (pointing right)
-          { 
-            line: `M ${centerX + 60} ${centerY - 20} L ${centerX + 60 + arrowLength} ${centerY - 20}`,
-            head: `M ${centerX + 60 + arrowLength - arrowHead} ${centerY - 20 - 5} L ${centerX + 60 + arrowLength} ${centerY - 20} L ${centerX + 60 + arrowLength - arrowHead} ${centerY - 20 + 5}`,
-          },
+          { x: 60, y: centerY - 30, rotation: -90, opacity },
+          { x: 60, y: centerY + 50, rotation: -90, opacity },
+          { x: svgWidth - 60, y: centerY - 30, rotation: 90, opacity },
+          { x: svgWidth - 60, y: centerY + 50, rotation: 90, opacity },
         ];
       case 'normal':
         return [
-          // Left block arrow (down-left)
-          { 
-            line: `M ${centerX - 50} ${centerY + 20} L ${centerX - 65} ${centerY + 45}`,
-            head: `M ${centerX - 58} ${centerY + 38} L ${centerX - 65} ${centerY + 45} L ${centerX - 58} ${centerY + 45}`,
-          },
-          // Right block arrow (up-right)
-          { 
-            line: `M ${centerX + 50} ${centerY - 10} L ${centerX + 65} ${centerY - 25}`,
-            head: `M ${centerX + 58} ${centerY - 18} L ${centerX + 65} ${centerY - 25} L ${centerX + 65} ${centerY - 18}`,
-          },
+          { x: 50, y: centerY, rotation: 180, opacity },
+          { x: svgWidth - 50, y: centerY, rotation: 0, opacity },
         ];
       case 'reverse':
         return [
-          // Left block arrow (up-right)
-          { 
-            line: `M ${centerX - 50} ${centerY + 20} L ${centerX - 35} ${centerY - 5}`,
-            head: `M ${centerX - 42} ${centerY + 2} L ${centerX - 35} ${centerY - 5} L ${centerX - 35} ${centerY + 2}`,
-          },
-          // Right block arrow (down-left)
-          { 
-            line: `M ${centerX + 50} ${centerY - 10} L ${centerX + 35} ${centerY + 15}`,
-            head: `M ${centerX + 42} ${centerY + 8} L ${centerX + 35} ${centerY + 15} L ${centerX + 42} ${centerY + 15}`,
-          },
+          { x: 50, y: centerY, rotation: 0, opacity },
+          { x: svgWidth - 50, y: centerY, rotation: 180, opacity },
         ];
     }
   };
 
-  const arrows = getArrowPaths();
+  const stressArrows = getStressArrows();
 
   return (
     <motion.div 
@@ -247,87 +289,124 @@ export default function FaultTypeSimulation({
       transition={{ duration: 0.5 }}
     >
       {/* Title */}
-      <div className="mb-4 text-center">
-        <h3 className="text-xl font-medium text-foreground mb-1">{info.title}</h3>
+      <div className="mb-3 text-center">
+        <h3 className="text-xl font-medium text-foreground mb-0.5">{info.title}</h3>
+        <p className="text-xs text-muted-foreground/70 uppercase tracking-widest mb-1">{info.subtitle}</p>
         <p className="text-sm text-muted-foreground">{info.description}</p>
       </div>
 
       {/* SVG Visualization */}
-      <div className="relative bg-card/30 rounded border border-border/50 overflow-hidden">
+      <div className="relative bg-card/20 rounded border border-border/30 overflow-hidden">
         <svg 
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           className="w-full h-auto"
-          style={{ minHeight: '200px' }}
+          style={{ minHeight: '220px' }}
         >
-          {/* Fault line (diagonal) */}
-          <motion.line
-            x1={centerX}
-            y1={0}
-            x2={centerX}
-            y2={svgHeight}
-            className="fault-line"
+          <defs>
+            {/* Subtle gradient for depth */}
+            <linearGradient id={`plateGradient-${type}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(40, 35, 30, 0.08)" />
+              <stop offset="100%" stopColor="rgba(40, 35, 30, 0.03)" />
+            </linearGradient>
+            
+            {/* Hatching pattern for geological cross-section look */}
+            <pattern id={`hatch-${type}`} patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="8" stroke="rgba(40, 35, 30, 0.1)" strokeWidth="1" />
+            </pattern>
+          </defs>
+
+          {/* Fault line (curved) - drawn first, behind plates */}
+          <motion.path
+            d={paths.faultLine}
+            fill="none"
+            stroke="rgba(40, 35, 30, 0.4)"
+            strokeWidth="1.5"
+            strokeDasharray="6 4"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 1.2 }}
           />
 
-          {/* Left block */}
+          {/* Left plate */}
           <motion.g
             animate={{ 
-              x: transforms.left.x, 
-              y: transforms.left.y 
+              transform: paths.leftTransform
             }}
-            transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+            transition={{ type: 'spring', stiffness: 120, damping: 20 }}
           >
-            <path d={leftBlock.left} className="block-face block-face-side" />
-            <path d={leftBlock.front} className="block-face block-face-front" />
-            <path d={leftBlock.top} className="block-face block-face-top" />
+            <path 
+              d={paths.leftPlate} 
+              fill={`url(#plateGradient-${type})`}
+              stroke="rgba(40, 35, 30, 0.75)"
+              strokeWidth="1.5"
+            />
+            <path 
+              d={paths.leftPlate} 
+              fill={`url(#hatch-${type})`}
+              stroke="none"
+            />
           </motion.g>
 
-          {/* Right block */}
+          {/* Right plate */}
           <motion.g
             animate={{ 
-              x: transforms.right.x, 
-              y: transforms.right.y 
+              transform: paths.rightTransform
             }}
-            transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+            transition={{ type: 'spring', stiffness: 120, damping: 20 }}
           >
-            <path d={rightBlock.right} className="block-face block-face-side" />
-            <path d={rightBlock.front} className="block-face block-face-front" />
-            <path d={rightBlock.top} className="block-face block-face-top" />
+            <path 
+              d={paths.rightPlate} 
+              fill={`url(#plateGradient-${type})`}
+              stroke="rgba(40, 35, 30, 0.75)"
+              strokeWidth="1.5"
+            />
+            <path 
+              d={paths.rightPlate} 
+              fill={`url(#hatch-${type})`}
+              stroke="none"
+            />
           </motion.g>
 
-          {/* Movement arrows */}
+          {/* Stress arrows */}
           <AnimatePresence>
-            {displacement > 5 && arrows.map((arrow, i) => (
+            {displacement > 5 && stressArrows.map((arrow, i) => (
               <motion.g
                 key={i}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.8 }}
+                animate={{ opacity: arrow.opacity }}
                 exit={{ opacity: 0 }}
+                transform={`translate(${arrow.x}, ${arrow.y}) rotate(${arrow.rotation})`}
               >
-                <path d={arrow.line} className="movement-arrow" />
-                <path d={arrow.head} className="movement-arrow" />
+                <path 
+                  d="M -12 0 L 8 0 M 3 -4 L 8 0 L 3 4" 
+                  fill="none"
+                  stroke="rgba(40, 35, 30, 0.6)"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </motion.g>
             ))}
           </AnimatePresence>
 
-          {/* Labels */}
+          {/* Plate labels */}
           <text 
-            x={centerX - 70} 
-            y={svgHeight - 15} 
-            className="measurement-label fill-muted-foreground text-center"
+            x={70} 
+            y={svgHeight - 20} 
+            className="fill-muted-foreground/60"
+            style={{ fontSize: '10px', fontFamily: 'SF Mono, Monaco, monospace', letterSpacing: '0.1em' }}
             textAnchor="middle"
           >
-            Block A
+            {type === 'reverse' ? 'HANGING' : type === 'normal' ? 'FOOTWALL' : 'PLATE A'}
           </text>
           <text 
-            x={centerX + 70} 
-            y={svgHeight - 15} 
-            className="measurement-label fill-muted-foreground text-center"
+            x={svgWidth - 70} 
+            y={svgHeight - 20} 
+            className="fill-muted-foreground/60"
+            style={{ fontSize: '10px', fontFamily: 'SF Mono, Monaco, monospace', letterSpacing: '0.1em' }}
             textAnchor="middle"
           >
-            Block B
+            {type === 'reverse' ? 'FOOTWALL' : type === 'normal' ? 'HANGING' : 'PLATE B'}
           </text>
         </svg>
       </div>
@@ -351,7 +430,7 @@ export default function FaultTypeSimulation({
             variant="outline"
             size="sm"
             onClick={handleReset}
-            className="rounded-full h-8 w-8 p-0 border-border/50"
+            className="rounded-full h-8 w-8 p-0 border-border/40 bg-transparent hover:bg-card/50"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </Button>
