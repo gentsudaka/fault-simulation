@@ -1,19 +1,16 @@
 /*
- * DESIGN: Seismically Accurate Curved Plates
+ * DESIGN: 3D Tectonic Plate Scenarios
  * Light brown/beige background with dark lines
- * Abstract minimal visualization
+ * Real-world examples: San Andreas, Afar, Mendocino
  * Garamond typography for elegance
  */
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import FaultTypeSimulation, { FaultType } from '@/components/FaultTypeSimulation';
+import PlateScenario, { ScenarioType } from '@/components/PlateScenario';
 
-const FAULT_TYPES: FaultType[] = ['strike-slip', 'normal', 'reverse'];
+const SCENARIOS: ScenarioType[] = ['2-plate', '3-plate', '4-plate'];
 
 export default function Home() {
-  const [activeType, setActiveType] = useState<FaultType>('strike-slip');
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -26,10 +23,10 @@ export default function Home() {
             className="text-center"
           >
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium text-foreground tracking-tight mb-3">
-              Tectonic Fault Types
+              Tectonic Plate Boundaries
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Curved fault surfaces and plate boundary dynamics
+              3D visualization of multi-plate interactions based on real-world examples
             </p>
           </motion.div>
         </div>
@@ -37,14 +34,14 @@ export default function Home() {
 
       {/* Main content */}
       <main className="flex-1 container py-8 lg:py-12">
-        {/* Three-column grid for fault types */}
+        {/* Three-column grid for scenarios */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8"
         >
-          {FAULT_TYPES.map((type, index) => (
+          {SCENARIOS.map((type, index) => (
             <motion.div
               key={type}
               initial={{ opacity: 0, y: 30 }}
@@ -52,15 +49,12 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.1 * (index + 1) }}
               className="bg-card/30 rounded-lg border border-border/30 p-5 lg:p-6"
             >
-              <FaultTypeSimulation
-                type={type}
-                isActive={activeType === type}
-              />
+              <PlateScenario type={type} />
             </motion.div>
           ))}
         </motion.div>
 
-        {/* Educational content - Seismically accurate */}
+        {/* Educational content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -69,61 +63,63 @@ export default function Home() {
         >
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-medium text-foreground text-center mb-8">
-              Fault Surface Geometry
+              Plate Boundary Configurations
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+              {/* 2-Plate */}
               <div className="space-y-3">
                 <div className="w-14 h-14 mx-auto rounded-full border border-border/40 flex items-center justify-center">
-                  {/* Transform boundary icon - curved vertical */}
                   <svg viewBox="0 0 28 28" className="w-7 h-7 stroke-foreground/70" fill="none" strokeWidth="1.5">
-                    <path d="M14 4 Q12 14, 14 24" />
-                    <path d="M6 10 L6 18" />
-                    <path d="M22 10 L22 18" />
-                    <path d="M6 14 L3 11 M6 14 L3 17" />
-                    <path d="M22 14 L25 11 M22 14 L25 17" />
+                    <rect x="4" y="8" width="8" height="12" rx="1" />
+                    <rect x="16" y="8" width="8" height="12" rx="1" />
+                    <line x1="14" y1="6" x2="14" y2="22" strokeDasharray="3 2" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-foreground">Transform</h3>
-                <p className="text-xs text-muted-foreground/70 uppercase tracking-wider mb-2">Strike-Slip Motion</p>
+                <h3 className="text-lg font-medium text-foreground">Two-Plate</h3>
+                <p className="text-xs text-muted-foreground/70 uppercase tracking-wider mb-2">Simple Boundary</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Plates slide laterally past each other along a curved vertical fault plane. The San Andreas Fault accommodates Pacific-North American plate motion.
+                  The most common configuration. Two plates meet at a single boundary that can be divergent, convergent, or transform.
                 </p>
               </div>
               
+              {/* 3-Plate */}
               <div className="space-y-3">
                 <div className="w-14 h-14 mx-auto rounded-full border border-border/40 flex items-center justify-center">
-                  {/* Listric fault icon - concave up curve */}
                   <svg viewBox="0 0 28 28" className="w-7 h-7 stroke-foreground/70" fill="none" strokeWidth="1.5">
-                    <path d="M6 8 Q4 16, 10 22 Q16 26, 22 24" />
-                    <path d="M4 14 L8 14" />
-                    <path d="M20 20 L24 20" />
-                    <path d="M6 14 L4 11 M6 14 L4 17" />
-                    <path d="M22 20 L25 17 M22 20 L25 23" />
+                    <path d="M14 14 L8 6" strokeDasharray="3 2" />
+                    <path d="M14 14 L20 6" strokeDasharray="3 2" />
+                    <path d="M14 14 L14 24" strokeDasharray="3 2" />
+                    <circle cx="14" cy="14" r="2" fill="currentColor" />
+                    <rect x="4" y="3" width="6" height="5" rx="1" />
+                    <rect x="18" y="3" width="6" height="5" rx="1" />
+                    <rect x="11" y="21" width="6" height="5" rx="1" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-foreground">Listric</h3>
-                <p className="text-xs text-muted-foreground/70 uppercase tracking-wider mb-2">Normal Fault Geometry</p>
+                <h3 className="text-lg font-medium text-foreground">Triple Junction</h3>
+                <p className="text-xs text-muted-foreground/70 uppercase tracking-wider mb-2">Three Plates Meet</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Extensional faults often have concave-upward curved surfaces. The hanging wall rotates as it drops, creating half-graben basins.
+                  Where three plates converge at a single point. The Afar region shows the clearest example of an RRR (ridge-ridge-ridge) junction.
                 </p>
               </div>
               
+              {/* 4-Plate */}
               <div className="space-y-3">
                 <div className="w-14 h-14 mx-auto rounded-full border border-border/40 flex items-center justify-center">
-                  {/* Thrust fault icon - convex curve */}
                   <svg viewBox="0 0 28 28" className="w-7 h-7 stroke-foreground/70" fill="none" strokeWidth="1.5">
-                    <path d="M6 22 Q10 18, 14 12 Q18 6, 22 6" />
-                    <path d="M4 14 L8 14" />
-                    <path d="M20 8 L24 8" />
-                    <path d="M6 14 L3 11 M6 14 L3 17" />
-                    <path d="M22 8 L25 5 M22 8 L25 11" />
+                    <line x1="14" y1="4" x2="14" y2="24" strokeDasharray="3 2" />
+                    <line x1="4" y1="14" x2="24" y2="14" strokeDasharray="3 2" />
+                    <circle cx="14" cy="14" r="2" fill="currentColor" />
+                    <rect x="4" y="4" width="5" height="5" rx="1" />
+                    <rect x="19" y="4" width="5" height="5" rx="1" />
+                    <rect x="4" y="19" width="5" height="5" rx="1" />
+                    <rect x="19" y="19" width="5" height="5" rx="1" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-foreground">Thrust</h3>
-                <p className="text-xs text-muted-foreground/70 uppercase tracking-wider mb-2">Reverse Fault Geometry</p>
+                <h3 className="text-lg font-medium text-foreground">Quadruple Zone</h3>
+                <p className="text-xs text-muted-foreground/70 uppercase tracking-wider mb-2">Complex Interaction</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Compressional faults curve to become nearly horizontal at depth. Major mountain ranges form where thrust sheets stack.
+                  True quadruple junctions are unstable and evolve into triple junctions. The Mendocino region shows complex multi-plate dynamics.
                 </p>
               </div>
             </div>
@@ -139,20 +135,27 @@ export default function Home() {
         >
           <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
+              <div 
+                className="w-6 h-4 rounded border border-foreground/30"
+                style={{ background: 'rgba(170, 155, 135, 0.85)' }}
+              />
+              <span>Tectonic plate</span>
+            </div>
+            <div className="flex items-center gap-2">
               <svg viewBox="0 0 30 10" className="w-8 h-3">
-                <path d="M0 5 Q15 2, 30 5" stroke="rgba(40, 35, 30, 0.5)" strokeWidth="1.5" strokeDasharray="4 3" fill="none" />
+                <line x1="0" y1="5" x2="30" y2="5" stroke="rgba(40, 35, 30, 0.4)" strokeWidth="1.5" strokeDasharray="6 4" />
               </svg>
-              <span>Curved fault surface</span>
+              <span>Plate boundary</span>
             </div>
             <div className="flex items-center gap-2">
               <svg viewBox="0 0 20 10" className="w-5 h-2.5">
                 <path d="M0 5h15M15 5l-4-3M15 5l-4 3" stroke="rgba(40, 35, 30, 0.6)" strokeWidth="1.5" fill="none" />
               </svg>
-              <span>Stress direction</span>
+              <span>Plate motion</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded" style={{ background: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(40,35,30,0.1) 2px, rgba(40,35,30,0.1) 4px)' }} />
-              <span>Plate cross-section</span>
+              <div className="w-2 h-2 rounded-full bg-foreground/50" />
+              <span>Junction point</span>
             </div>
           </div>
         </motion.div>
@@ -162,7 +165,7 @@ export default function Home() {
       <footer className="border-t border-border/30 py-6">
         <div className="container">
           <p className="text-xs text-muted-foreground text-center">
-            Seismically accurate fault geometry visualization
+            3D tectonic plate boundary visualization based on real-world geological examples
           </p>
         </div>
       </footer>
