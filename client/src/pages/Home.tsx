@@ -1,6 +1,6 @@
 /*
  * DESIGN: Minimal Monochrome Modernism
- * Dark navy background with white lines
+ * Light brown/beige background with dark lines
  * Third-person isometric view for all fault types
  * Garamond typography for elegance
  */
@@ -50,7 +50,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 * (index + 1) }}
-              className="bg-card/20 rounded-lg border border-border/30 p-5 lg:p-6"
+              className="bg-card/40 rounded-lg border border-border/40 p-5 lg:p-6"
             >
               <FaultTypeSimulation
                 type={type}
@@ -121,12 +121,12 @@ export default function Home() {
         >
           <div className="flex items-center gap-8 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-px bg-foreground/60" style={{ borderStyle: 'dashed', borderWidth: '1px 0 0 0', borderColor: 'rgba(255,255,255,0.6)' }} />
+              <div className="w-8 h-px" style={{ borderStyle: 'dashed', borderWidth: '1px 0 0 0', borderColor: 'rgba(40, 35, 30, 0.5)' }} />
               <span>Fault plane</span>
             </div>
             <div className="flex items-center gap-2">
               <svg viewBox="0 0 20 10" className="w-5 h-2.5">
-                <path d="M0 5h15M15 5l-4-3M15 5l-4 3" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" fill="none" />
+                <path d="M0 5h15M15 5l-4-3M15 5l-4 3" stroke="rgba(40, 35, 30, 0.7)" strokeWidth="1.5" fill="none" />
               </svg>
               <span>Movement direction</span>
             </div>

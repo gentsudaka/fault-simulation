@@ -18,13 +18,13 @@ function Router() {
 
 /*
  * DESIGN: Minimal Monochrome Modernism
- * Dark navy background with white lines
+ * Light brown/beige background with dark lines
  * Third-person isometric view for all fault types
  */
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />

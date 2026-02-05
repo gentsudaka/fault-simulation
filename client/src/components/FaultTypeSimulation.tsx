@@ -1,7 +1,7 @@
 /*
  * DESIGN: Minimal Monochrome Modernism
  * Individual fault type visualization with isometric 3D blocks
- * White lines on dark navy background
+ * Dark lines on light brown/beige background
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
