@@ -17,14 +17,14 @@ function Router() {
 }
 
 /*
- * DESIGN: Interactive Diagram Modernism
- * Using light theme with warm sand tones for geological simulation
- * Swiss Design aesthetic with bold contrasts
+ * DESIGN: Minimal Monochrome Modernism
+ * Dark navy background with white lines
+ * Third-person isometric view for all fault types
  */
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
           <Router />

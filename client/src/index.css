@@ -1,29 +1,16 @@
+/*
+ * DESIGN: Minimal Monochrome Modernism
+ * Dark navy background with white lines
+ * Clean, elegant, modern contrast
+ * Garamond typography for sophistication
+ */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * DESIGN SYSTEM: Interactive Diagram Modernism
- * Inspired by Swiss Design + Contemporary Data Journalism
- * 
- * Core Principles:
- * - Reduction to essentials
- * - Bold graphic contrast
- * - Systematic grid
- * - Active learning through interaction
- * 
- * Color Philosophy:
- * - Warm sand background (#E8DCC4)
- * - Charcoal for text/lines (#2D2D2D)
- * - Bold ridge colors (terracotta, ochre, sienna)
- * - Electric teal accent (#00A6A6) for interactive elements
- */
-
 @theme inline {
-  --font-sans: 'Space Grotesk', system-ui, sans-serif;
-  --font-mono: 'Space Mono', monospace;
-  
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -61,113 +48,48 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   
-  /* Custom colors for geological simulation */
-  --color-sand: oklch(0.90 0.04 80);
-  --color-sand-dark: oklch(0.82 0.05 75);
-  --color-charcoal: oklch(0.25 0.01 270);
-  --color-teal: oklch(0.65 0.15 195);
-  --color-teal-dark: oklch(0.55 0.15 195);
-  --color-terracotta: oklch(0.55 0.15 35);
-  --color-ochre: oklch(0.70 0.15 80);
-  --color-sienna: oklch(0.45 0.12 50);
+  /* Custom navy color */
+  --color-navy: oklch(0.22 0.03 260);
+  --color-navy-light: oklch(0.28 0.03 260);
 }
 
+/* Dark theme - Navy and White */
 :root {
-  --radius: 0.5rem;
+  --primary: oklch(0.95 0 0);
+  --primary-foreground: oklch(0.22 0.03 260);
+  --sidebar-primary: oklch(0.95 0 0);
+  --sidebar-primary-foreground: oklch(0.22 0.03 260);
+  --chart-1: oklch(0.95 0 0);
+  --chart-2: oklch(0.8 0 0);
+  --chart-3: oklch(0.65 0 0);
+  --chart-4: oklch(0.5 0 0);
+  --chart-5: oklch(0.35 0 0);
+  --radius: 0.25rem;
   
-  /* Warm sand background */
-  --background: oklch(0.92 0.03 80);
-  --foreground: oklch(0.25 0.01 270);
-  
-  /* Cards with slight warmth */
-  --card: oklch(0.96 0.02 80);
-  --card-foreground: oklch(0.25 0.01 270);
-  
-  --popover: oklch(0.98 0.01 80);
-  --popover-foreground: oklch(0.25 0.01 270);
-  
-  /* Teal primary for interactive elements */
-  --primary: oklch(0.55 0.15 195);
-  --primary-foreground: oklch(0.98 0.01 80);
-  
-  /* Muted sand tones */
-  --secondary: oklch(0.88 0.04 80);
-  --secondary-foreground: oklch(0.35 0.02 270);
-  
-  --muted: oklch(0.85 0.03 80);
-  --muted-foreground: oklch(0.45 0.02 270);
-  
-  /* Terracotta accent */
-  --accent: oklch(0.55 0.15 35);
-  --accent-foreground: oklch(0.98 0.01 80);
-  
-  --destructive: oklch(0.55 0.20 25);
-  --destructive-foreground: oklch(0.98 0.01 80);
-  
-  --border: oklch(0.80 0.04 80);
-  --input: oklch(0.85 0.03 80);
-  --ring: oklch(0.55 0.15 195);
-  
-  /* Chart colors - geological tones */
-  --chart-1: oklch(0.55 0.15 35);
-  --chart-2: oklch(0.70 0.15 80);
-  --chart-3: oklch(0.45 0.12 50);
-  --chart-4: oklch(0.55 0.15 195);
-  --chart-5: oklch(0.65 0.10 120);
-  
-  --sidebar: oklch(0.94 0.02 80);
-  --sidebar-foreground: oklch(0.25 0.01 270);
-  --sidebar-primary: oklch(0.55 0.15 195);
-  --sidebar-primary-foreground: oklch(0.98 0.01 80);
-  --sidebar-accent: oklch(0.88 0.04 80);
-  --sidebar-accent-foreground: oklch(0.25 0.01 270);
-  --sidebar-border: oklch(0.80 0.04 80);
-  --sidebar-ring: oklch(0.55 0.15 195);
-}
-
-.dark {
-  --background: oklch(0.18 0.02 270);
-  --foreground: oklch(0.92 0.02 80);
-  
-  --card: oklch(0.22 0.02 270);
-  --card-foreground: oklch(0.92 0.02 80);
-  
-  --popover: oklch(0.20 0.02 270);
-  --popover-foreground: oklch(0.92 0.02 80);
-  
-  --primary: oklch(0.65 0.15 195);
-  --primary-foreground: oklch(0.15 0.01 270);
-  
-  --secondary: oklch(0.28 0.02 270);
-  --secondary-foreground: oklch(0.85 0.02 80);
-  
-  --muted: oklch(0.30 0.02 270);
-  --muted-foreground: oklch(0.65 0.02 80);
-  
-  --accent: oklch(0.60 0.15 35);
-  --accent-foreground: oklch(0.15 0.01 270);
-  
-  --destructive: oklch(0.60 0.20 25);
-  --destructive-foreground: oklch(0.98 0.01 80);
-  
-  --border: oklch(0.35 0.02 270);
-  --input: oklch(0.30 0.02 270);
-  --ring: oklch(0.65 0.15 195);
-  
-  --chart-1: oklch(0.60 0.15 35);
-  --chart-2: oklch(0.75 0.15 80);
-  --chart-3: oklch(0.50 0.12 50);
-  --chart-4: oklch(0.65 0.15 195);
-  --chart-5: oklch(0.70 0.10 120);
-  
-  --sidebar: oklch(0.20 0.02 270);
-  --sidebar-foreground: oklch(0.92 0.02 80);
-  --sidebar-primary: oklch(0.65 0.15 195);
-  --sidebar-primary-foreground: oklch(0.15 0.01 270);
-  --sidebar-accent: oklch(0.28 0.02 270);
-  --sidebar-accent-foreground: oklch(0.92 0.02 80);
-  --sidebar-border: oklch(0.35 0.02 270);
-  --sidebar-ring: oklch(0.65 0.15 195);
+  /* Navy background, white foreground */
+  --background: oklch(0.18 0.025 260);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.22 0.03 260);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.22 0.03 260);
+  --popover-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.25 0.025 260);
+  --secondary-foreground: oklch(0.9 0 0);
+  --muted: oklch(0.28 0.02 260);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.3 0.02 260);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.4 0.01 260);
+  --input: oklch(0.35 0.02 260);
+  --ring: oklch(0.95 0 0);
+  --sidebar: oklch(0.2 0.025 260);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.28 0.02 260);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.35 0.02 260);
+  --sidebar-ring: oklch(0.95 0 0);
 }
 
 @layer base {
@@ -175,7 +97,8 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
+    font-family: 'EB Garamond', Georgia, serif;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -187,6 +110,12 @@
   input[type="checkbox"]:not(:disabled),
   input[type="radio"]:not(:disabled) {
     @apply cursor-pointer;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -215,40 +144,59 @@
     .container {
       padding-left: 2rem;
       padding-right: 2rem;
-      max-width: 1280px;
+      max-width: 1400px;
     }
   }
   
-  /* Custom simulation styles */
-  .simulation-canvas {
-    background: linear-gradient(
-      135deg,
-      oklch(0.90 0.04 80) 0%,
-      oklch(0.88 0.05 75) 50%,
-      oklch(0.86 0.04 80) 100%
-    );
+  /* Isometric 3D block styling */
+  .isometric-block {
+    transform-style: preserve-3d;
+    perspective: 1000px;
   }
   
+  .block-face {
+    stroke: rgba(255, 255, 255, 0.9);
+    stroke-width: 1.5;
+    fill: none;
+  }
+  
+  .block-face-top {
+    fill: rgba(255, 255, 255, 0.08);
+  }
+  
+  .block-face-front {
+    fill: rgba(255, 255, 255, 0.04);
+  }
+  
+  .block-face-side {
+    fill: rgba(255, 255, 255, 0.02);
+  }
+  
+  /* Fault line styling */
   .fault-line {
-    stroke-dasharray: 12 6;
-    animation: dash 1s linear infinite;
+    stroke: rgba(255, 255, 255, 0.6);
+    stroke-width: 1;
+    stroke-dasharray: 8 4;
   }
   
-  @keyframes dash {
-    to {
-      stroke-dashoffset: -18;
-    }
+  /* Movement arrows */
+  .movement-arrow {
+    stroke: rgba(255, 255, 255, 0.8);
+    stroke-width: 1.5;
+    fill: none;
   }
   
-  .info-card {
-    backdrop-filter: blur(8px);
-    background: oklch(0.96 0.02 80 / 0.9);
-    border: 1px solid oklch(0.80 0.04 80);
+  /* Labels */
+  .fault-label {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 1.125rem;
+    fill: rgba(255, 255, 255, 0.95);
+    letter-spacing: 0.05em;
   }
   
   .measurement-label {
-    font-family: 'Space Mono', monospace;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
     font-size: 0.75rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
   }
 }
