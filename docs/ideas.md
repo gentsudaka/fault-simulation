@@ -118,4 +118,4 @@ An interactive geological simulation showing how strike-slip fault movement spli
 
 ## Selected Approach: Idea 3 - Interactive Diagram Modernism
 
-This approach best balances educational clarity with engaging interactivity. The Swiss Design influence ensures the geological concepts are communicated clearly, while the bold graphics and direct manipulation create an engaging learning experience. The asymmetric layout avoids the "centered AI slop" pattern and creates visual tension that draws the eye.
+This approach best balances educational clarity with engaging interactivity. The Swiss Design influence ensures the geological concepts are communicated clearly, while the bold graphics and direct manipulation create an engaging learning experience. The asymmetric layout creates visual tension that draws the eye.
