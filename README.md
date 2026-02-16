@@ -91,8 +91,9 @@ This project visualizes tectonic plate boundaries to make geological concepts ac
 
 ## Author
 
-**Gen Tsudaka**  
-Behavioral Scientist | Columbia Business School  
+**Gen Tsudaka, PhD**  
+Postdoctoral Research Scholar, Columbia Business School  
+PhD, Psychology, The New School for Social Research  
 [GitHub](https://github.com/gentsudaka) · [ORCID](https://orcid.org/0000-0002-8969-5763)
 
 ## License
