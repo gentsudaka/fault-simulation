@@ -24,16 +24,18 @@ interface TectonicPlate3DProps {
   displacement: number;
   showLabel?: boolean;
   showArrow?: boolean;
+  viewOffset?: { x: number; z: number };
 }
 
-export default function TectonicPlate3D({ 
-  plate, 
+export default function TectonicPlate3D({
+  plate,
   displacement,
   showLabel = true,
-  showArrow = true
+  showArrow = true,
+  viewOffset,
 }: TectonicPlate3DProps) {
   const { position, rotation, size, velocity, color, name } = plate;
-  
+
   // Calculate animated position based on displacement and velocity
   const animatedPos = {
     x: position.x + (velocity?.x || 0) * displacement * 50,
@@ -44,9 +46,9 @@ export default function TectonicPlate3D({
   // CSS 3D transform for the entire plate group
   const groupTransform = `
     translate3d(${animatedPos.x}px, ${animatedPos.y}px, ${animatedPos.z}px)
-    rotateX(${rotation.x}deg)
+    rotateX(${rotation.x + (viewOffset?.x ?? 0)}deg)
     rotateY(${rotation.y}deg)
-    rotateZ(${rotation.z}deg)
+    rotateZ(${rotation.z + (viewOffset?.z ?? 0)}deg)
   `;
 
   const { width, height, depth } = size;
@@ -143,9 +145,9 @@ export default function TectonicPlate3D({
               opacity: face.shade,
             }}
           />
-          
+
           {/* Geological hatching pattern */}
-          <div 
+          <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background: `repeating-linear-gradient(
@@ -158,10 +160,12 @@ export default function TectonicPlate3D({
               opacity: face.shade * 0.8,
             }}
           />
-          
+
           {/* Edge highlight for depth */}
-          {(face.name === 'top' || face.name === 'front' || face.name === 'right') && (
-            <div 
+          {(face.name === 'top' ||
+            face.name === 'front' ||
+            face.name === 'right') && (
+            <div
               className="absolute inset-0 pointer-events-none"
               style={{
                 boxShadow: 'inset 1px 1px 0 rgba(255,255,255,0.15)',
@@ -186,9 +190,9 @@ export default function TectonicPlate3D({
             justifyContent: 'center',
           }}
         >
-          <span 
+          <span
             className="font-medium tracking-wider uppercase text-center px-1"
-            style={{ 
+            style={{
               color: 'rgba(40, 35, 30, 0.9)',
               textShadow: '0 1px 2px rgba(255,255,255,0.4)',
               fontFamily: 'SF Mono, Monaco, Consolas, monospace',
@@ -203,7 +207,7 @@ export default function TectonicPlate3D({
       )}
 
       {/* Movement arrow on top face */}
-      {showArrow && velocity && (displacement > 0.05) && (
+      {showArrow && velocity && displacement > 0.05 && (
         <motion.div
           className="absolute pointer-events-none"
           style={{
@@ -219,12 +223,12 @@ export default function TectonicPlate3D({
           initial={{ opacity: 0 }}
           animate={{ opacity: Math.min(displacement * 1.5, 0.8) }}
         >
-          <svg 
-            width="35" 
-            height="35" 
+          <svg
+            width="35"
+            height="35"
             viewBox="0 0 35 35"
             style={{
-              transform: `rotate(${Math.atan2(velocity.y, velocity.x) * 180 / Math.PI + 90}deg)`,
+              transform: `rotate(${(Math.atan2(velocity.y, velocity.x) * 180) / Math.PI + 90}deg)`,
             }}
           >
             <path

@@ -2,138 +2,19 @@
  * DESIGN: 3D Plate Scenario Visualization
  * Shows 2-plate, 3-plate (triple junction), or 4-plate scenarios
  * Real-world examples with proper geological context
- * Third-person isometric view with consistent angle
+ * Third-person isometric view with user-adjustable rotation
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, Info } from 'lucide-react';
+import { Play, Pause, RotateCcw, Info, Layers, Box } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import TectonicPlate3D, { PlateProps } from './TectonicPlate3D';
+import TectonicPlate3D from './TectonicPlate3D';
+import FaultCrossSection from './FaultCrossSection';
+import { SCENARIOS, type ScenarioType } from '@/data/scenarios';
 
-export type ScenarioType = '2-plate' | '3-plate' | '4-plate';
-
-interface ScenarioConfig {
-  title: string;
-  subtitle: string;
-  location: string;
-  description: string;
-  plates: PlateProps[];
-  boundaryType: string;
-}
-
-// Real-world scenario configurations with proper 3D positioning
-const SCENARIOS: Record<ScenarioType, ScenarioConfig> = {
-  '2-plate': {
-    title: 'San Andreas Fault',
-    subtitle: 'Transform Boundary',
-    location: 'California, USA',
-    description: 'The Pacific Plate slides northwest past the North American Plate at ~46mm/year. This right-lateral strike-slip fault extends 1,300km through California.',
-    boundaryType: 'Transform (Conservative)',
-    plates: [
-      {
-        id: 'pacific',
-        name: 'Pacific',
-        color: 'rgba(195, 175, 155, 0.95)',
-        position: { x: -55, y: 0, z: 0 },
-        rotation: { x: 55, y: 0, z: -25 },
-        size: { width: 90, height: 35, depth: 70 },
-        velocity: { x: 0, y: -0.6, z: 0 },
-      },
-      {
-        id: 'north-american',
-        name: 'N. American',
-        color: 'rgba(175, 160, 140, 0.95)',
-        position: { x: 55, y: 0, z: 0 },
-        rotation: { x: 55, y: 0, z: -25 },
-        size: { width: 90, height: 35, depth: 70 },
-        velocity: { x: 0, y: 0.6, z: 0 },
-      },
-    ],
-  },
-  '3-plate': {
-    title: 'Afar Triple Junction',
-    subtitle: 'Ridge-Ridge-Ridge (RRR)',
-    location: 'Ethiopia / Djibouti',
-    description: 'The clearest triple junction on Earth where the Nubian, Somali, and Arabian plates diverge. The Afar Depression is actively rifting, creating new oceanic crust.',
-    boundaryType: 'Divergent (Constructive)',
-    plates: [
-      {
-        id: 'nubian',
-        name: 'Nubian',
-        color: 'rgba(190, 170, 150, 0.95)',
-        position: { x: -45, y: 25, z: 0 },
-        rotation: { x: 55, y: 0, z: -25 },
-        size: { width: 75, height: 30, depth: 60 },
-        velocity: { x: -0.5, y: 0.3, z: 0 },
-      },
-      {
-        id: 'somali',
-        name: 'Somali',
-        color: 'rgba(180, 165, 145, 0.95)',
-        position: { x: 45, y: 25, z: 0 },
-        rotation: { x: 55, y: 0, z: -25 },
-        size: { width: 75, height: 30, depth: 60 },
-        velocity: { x: 0.5, y: 0.3, z: 0 },
-      },
-      {
-        id: 'arabian',
-        name: 'Arabian',
-        color: 'rgba(170, 155, 135, 0.95)',
-        position: { x: 0, y: -40, z: 0 },
-        rotation: { x: 55, y: 0, z: -25 },
-        size: { width: 75, height: 30, depth: 60 },
-        velocity: { x: 0, y: -0.6, z: 0 },
-      },
-    ],
-  },
-  '4-plate': {
-    title: 'Mendocino Complex',
-    subtitle: 'Multi-Plate Interaction Zone',
-    location: 'Northern California',
-    description: 'A complex region where the Pacific, North American, Gorda, and Juan de Fuca plates interact. Recent research reveals 5+ moving pieces in this seismically active zone.',
-    boundaryType: 'Mixed (Transform + Subduction)',
-    plates: [
-      {
-        id: 'pacific-m',
-        name: 'Pacific',
-        color: 'rgba(195, 175, 155, 0.95)',
-        position: { x: -40, y: 30, z: 0 },
-        rotation: { x: 55, y: 0, z: -25 },
-        size: { width: 65, height: 25, depth: 52 },
-        velocity: { x: -0.35, y: -0.35, z: 0 },
-      },
-      {
-        id: 'north-american-m',
-        name: 'N. American',
-        color: 'rgba(175, 160, 140, 0.95)',
-        position: { x: 40, y: 30, z: 0 },
-        rotation: { x: 55, y: 0, z: -25 },
-        size: { width: 65, height: 25, depth: 52 },
-        velocity: { x: 0.35, y: -0.35, z: 0 },
-      },
-      {
-        id: 'gorda',
-        name: 'Gorda',
-        color: 'rgba(165, 150, 130, 0.95)',
-        position: { x: -40, y: -30, z: 0 },
-        rotation: { x: 55, y: 0, z: -25 },
-        size: { width: 65, height: 25, depth: 52 },
-        velocity: { x: -0.35, y: 0.35, z: 0 },
-      },
-      {
-        id: 'juan-de-fuca',
-        name: 'J. de Fuca',
-        color: 'rgba(185, 170, 150, 0.95)',
-        position: { x: 40, y: -30, z: 0 },
-        rotation: { x: 55, y: 0, z: -25 },
-        size: { width: 65, height: 25, depth: 52 },
-        velocity: { x: 0.35, y: 0.35, z: 0 },
-      },
-    ],
-  },
-};
+export type { ScenarioType };
 
 const MAX_DISPLACEMENT = 1;
 const ANIMATION_DURATION = 4000;
@@ -144,37 +25,57 @@ interface PlateScenarioProps {
 }
 
 export default function PlateScenario({ type, className = '' }: PlateScenarioProps) {
+  const scenarios = SCENARIOS[type];
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [displacement, setDisplacement] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [viewMode, setViewMode] = useState<'3d' | 'section'>('3d');
+  const [viewOffset, setViewOffset] = useState({ x: 0, z: 0 });
   const animationRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const startDisplacementRef = useRef<number>(0);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    startOffset: { x: number; z: number };
+  } | null>(null);
 
-  const scenario = SCENARIOS[type];
+  const scenario = scenarios[selectedIndex];
 
-  // Animation loop
+  // Reset state when switching scenarios
+  useEffect(() => {
+    setIsPlaying(false);
+    setDisplacement(0);
+    startTimeRef.current = 0;
+    startDisplacementRef.current = 0;
+    setViewMode('3d');
+    setViewOffset({ x: 0, z: 0 });
+  }, [selectedIndex]);
+
+  // Animation loop — reads only from refs to avoid stale closures
   const animate = useCallback((timestamp: number) => {
     if (!startTimeRef.current) {
       startTimeRef.current = timestamp;
-      startDisplacementRef.current = displacement;
     }
 
     const elapsed = timestamp - startTimeRef.current;
     const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
-    
+
     // Ease out cubic
     const eased = 1 - Math.pow(1 - progress, 3);
-    const newDisplacement = startDisplacementRef.current + (MAX_DISPLACEMENT - startDisplacementRef.current) * eased;
-    
+    const newDisplacement =
+      startDisplacementRef.current +
+      (MAX_DISPLACEMENT - startDisplacementRef.current) * eased;
+
     setDisplacement(newDisplacement);
 
-    if (progress < 1 && isPlaying) {
+    if (progress < 1) {
       animationRef.current = requestAnimationFrame(animate);
-    } else if (progress >= 1) {
+    } else {
       setIsPlaying(false);
     }
-  }, [isPlaying, displacement]);
+  }, []);
 
   useEffect(() => {
     if (isPlaying) {
@@ -191,9 +92,11 @@ export default function PlateScenario({ type, className = '' }: PlateScenarioPro
   const handlePlayPause = () => {
     if (displacement >= MAX_DISPLACEMENT) {
       setDisplacement(0);
-      startTimeRef.current = 0;
       startDisplacementRef.current = 0;
+    } else {
+      startDisplacementRef.current = displacement;
     }
+    startTimeRef.current = 0;
     setIsPlaying(!isPlaying);
   };
 
@@ -209,13 +112,57 @@ export default function PlateScenario({ type, className = '' }: PlateScenarioPro
     setDisplacement(value[0]);
   };
 
+  // Drag rotation handlers
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (viewMode !== '3d') return;
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startOffset: { ...viewOffset },
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    setViewOffset({
+      x: Math.max(-30, Math.min(30, dragRef.current.startOffset.x - dy * 0.3)),
+      z: Math.max(-40, Math.min(40, dragRef.current.startOffset.z - dx * 0.3)),
+    });
+  };
+
+  const handlePointerUp = () => {
+    dragRef.current = null;
+  };
+
   return (
-    <motion.div 
+    <motion.div
       className={`flex flex-col ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Scenario selector */}
+      {scenarios.length > 1 && (
+        <div className="flex items-center justify-center gap-1 mb-3">
+          {scenarios.map((s, i) => (
+            <button
+              key={s.id}
+              onClick={() => setSelectedIndex(i)}
+              className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+                i === selectedIndex
+                  ? 'bg-foreground/10 text-foreground font-medium'
+                  : 'text-muted-foreground/60 hover:text-muted-foreground'
+              }`}
+            >
+              {s.location}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-3 text-center relative">
         <div className="flex items-center justify-center gap-2 mb-1">
@@ -242,54 +189,112 @@ export default function PlateScenario({ type, className = '' }: PlateScenarioPro
             exit={{ opacity: 0, height: 0 }}
             className="mb-3 px-3 py-2 bg-foreground/5 rounded border border-border/30 text-xs text-muted-foreground"
           >
-            <p className="mb-1"><strong>Boundary:</strong> {scenario.boundaryType}</p>
+            <p className="mb-1">
+              <strong>Boundary:</strong> {scenario.boundaryType}
+            </p>
             <p>{scenario.description}</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 3D Visualization Container */}
-      <div 
-        className="relative bg-card/20 rounded border border-border/30 overflow-hidden"
-        style={{ 
+      {/* View mode toggle */}
+      {scenario.faultType && (
+        <div className="flex items-center justify-center gap-1 mb-2">
+          <button
+            onClick={() => setViewMode('3d')}
+            className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-full transition-colors ${
+              viewMode === '3d'
+                ? 'bg-foreground/10 text-foreground'
+                : 'text-muted-foreground/60 hover:text-muted-foreground'
+            }`}
+          >
+            <Box className="w-3 h-3" />
+            3D
+          </button>
+          <button
+            onClick={() => setViewMode('section')}
+            className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-full transition-colors ${
+              viewMode === 'section'
+                ? 'bg-foreground/10 text-foreground'
+                : 'text-muted-foreground/60 hover:text-muted-foreground'
+            }`}
+          >
+            <Layers className="w-3 h-3" />
+            Section
+          </button>
+        </div>
+      )}
+
+      {/* Visualization */}
+      <div
+        className="relative bg-card/20 rounded border border-border/30 overflow-hidden select-none"
+        style={{
           height: '280px',
-          perspective: '600px',
-          perspectiveOrigin: '50% 40%',
+          ...(viewMode === '3d'
+            ? {
+                perspective: '600px',
+                perspectiveOrigin: '50% 40%',
+                cursor: dragRef.current ? 'grabbing' : 'grab',
+              }
+            : {}),
         }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
       >
-        {/* 3D Scene */}
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{
-            transformStyle: 'preserve-3d',
-          }}
-        >
-          {/* Plates */}
-          {scenario.plates.map((plate) => (
-            <TectonicPlate3D
-              key={plate.id}
-              plate={plate}
+        {viewMode === '3d' ? (
+          <>
+            {/* 3D Scene */}
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              {scenario.plates.map((plate) => (
+                <TectonicPlate3D
+                  key={plate.id}
+                  plate={plate}
+                  displacement={displacement}
+                  showLabel={true}
+                  showArrow={true}
+                  viewOffset={viewOffset}
+                />
+              ))}
+            </div>
+
+            {/* Plate count badge */}
+            <div className="absolute top-3 left-3 px-2 py-1 bg-foreground/5 rounded text-xs text-muted-foreground font-mono pointer-events-none">
+              {scenario.plates.length} plates
+            </div>
+
+            {/* Junction type indicator */}
+            <div className="absolute top-3 right-3 px-2 py-1 bg-foreground/5 rounded text-xs text-muted-foreground pointer-events-none">
+              {type === '2-plate'
+                ? 'Binary'
+                : type === '3-plate'
+                  ? 'Triple Junction'
+                  : 'Quadruple Zone'}
+            </div>
+
+            {/* Drag hint */}
+            {viewOffset.x === 0 && viewOffset.z === 0 && (
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground/40 pointer-events-none">
+                drag to rotate
+              </div>
+            )}
+          </>
+        ) : (
+          scenario.faultType && (
+            <FaultCrossSection
+              type={scenario.faultType}
               displacement={displacement}
-              showLabel={true}
-              showArrow={true}
             />
-          ))}
-        </div>
-
-        {/* Plate count badge */}
-        <div className="absolute top-3 left-3 px-2 py-1 bg-foreground/5 rounded text-xs text-muted-foreground font-mono">
-          {scenario.plates.length} plates
-        </div>
-
-        {/* Junction type indicator */}
-        <div className="absolute top-3 right-3 px-2 py-1 bg-foreground/5 rounded text-xs text-muted-foreground">
-          {type === '2-plate' ? 'Binary' : type === '3-plate' ? 'Triple Junction' : 'Quadruple Zone'}
-        </div>
+          )
+        )}
       </div>
 
       {/* Controls */}
       <div className="mt-4 space-y-3">
-        {/* Slider */}
         <div className="px-1">
           <Slider
             value={[displacement * 100]}
@@ -300,7 +305,6 @@ export default function PlateScenario({ type, className = '' }: PlateScenarioPro
           />
         </div>
 
-        {/* Buttons */}
         <div className="flex items-center justify-center gap-2">
           <Button
             variant="outline"
